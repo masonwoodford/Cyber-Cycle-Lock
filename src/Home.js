@@ -17,7 +17,7 @@ export class Home extends React.Component {
     }
   }
 
-  onPress = () => {
+  toggle = () => {
     this.setState({
       region: {
         latitude: 37.78825,
@@ -28,6 +28,10 @@ export class Home extends React.Component {
       buttonBackgroundColor: this.state.buttonBackgroundColor === "red" ? "green" : "red",
       buttonText: this.state.buttonText === "Unlock" ? "Lock" : "Unlock"
     });
+  }
+
+  navigate = () => {
+    this.props.navigation.navigate('Devices')
   }
 
   onRegionChange = (region) => {
@@ -56,12 +60,20 @@ export class Home extends React.Component {
               </View>
           </MapView.Marker>
         </MapView>
-        <TouchableOpacity 
-          style={[styles.lockbutton, colorStyles]}
-          onPress={this.onPress}
-        >
-          <Text style={{color: "white"}}>{buttonText}</Text>
-        </TouchableOpacity>
+        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center'}}>
+          <TouchableOpacity 
+            style={[styles.lockbutton, colorStyles]}
+            onPress={this.toggle}
+          >
+            <Text style={{color: "white"}}>{buttonText}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.locksbutton}
+            onPress={this.navigate}
+          >
+            <Text style={{color: "white"}}>Devices</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -106,6 +118,18 @@ const styles = StyleSheet.create({
     marginTop: 625,
     paddingVertical: 25,
     borderRadius: 10,
-    width: 180
+    width: 125,
+    height: 75,
+    marginHorizontal: 20
+  },
+  locksbutton: {
+    alignItems: 'center',
+    marginTop: 625,
+    paddingVertical: 25,
+    borderRadius: 10,
+    width: 125,
+    height: 75,
+    backgroundColor: 'grey',
+    marginHorizontal: 20
   },
 });
