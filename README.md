@@ -10,7 +10,7 @@ npm install --global expo-cli
 
 To install the remaining packages, use 
 ```
-npm install
+expo install
 ```
 
 ### Run the Application
