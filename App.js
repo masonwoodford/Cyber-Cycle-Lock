@@ -41,12 +41,7 @@ export default class App extends React.Component {
         <TouchableOpacity 
           style={styles.lockbutton}
         >
-          <Text>Lock</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.unlockbutton}
-        >
-          <Text>Unlock</Text>
+          <Text style={{color: "white"}}>Lock</Text>
         </TouchableOpacity>
       </View>
     );
@@ -88,15 +83,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   lockbutton: {
-    top: 715,
-    right: 275,
-    position: 'absolute',
-    color: "#EB4034"
+    alignItems: 'center',
+    marginTop: 625,
+    backgroundColor: '#FF0000',
+    paddingVertical: 25,
+    paddingHorizontal: 50,
+    borderRadius: 10,
   },
-  unlockbutton: {
-    top: 715,
-    left: 275,
-    position: 'absolute',
-    color: "#EB4034"
-  }
 });
