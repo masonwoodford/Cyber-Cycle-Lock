@@ -25,7 +25,7 @@ export class Splash extends React.Component {
                         height: 400,
                     }}
                     speed = {0.9}
-                    source={require('./assets/splash.json')}
+                    source={require('../assets/splash.json')}
                     onAnimationFinish = {() => {
                         setTimeout(() => this.props.navigation.navigate('Home'))
                     }}

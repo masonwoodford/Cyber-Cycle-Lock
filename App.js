@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
-import { Home } from './Home';
-import { Splash } from './Splash'
+import { Home } from './src/Home';
+import { Splash } from './src/Splash'
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
