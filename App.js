@@ -13,7 +13,22 @@ export default class App extends React.Component {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       },
+      buttonBackgroundColor: "red",
+      buttonText: "Lock"
     }
+  }
+
+  onPress = () => {
+    this.setState({
+      region: {
+        latitude: 37.78825,
+        longitude: -122.4324,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      },
+      buttonBackgroundColor: this.state.buttonBackgroundColor === "red" ? "green" : "red",
+      buttonText: this.state.buttonText === "Unlock" ? "Lock" : "Unlock"
+    });
   }
 
   onRegionChange = (region) => {
@@ -21,6 +36,10 @@ export default class App extends React.Component {
   } 
 
   render() {
+    const {region, buttonBackgroundColor, buttonText} = this.state
+    const colorStyles = {
+      backgroundColor: buttonBackgroundColor
+    }
     return (
       <View style={styles.container}>
         <MapView 
@@ -39,9 +58,10 @@ export default class App extends React.Component {
           </MapView.Marker>
         </MapView>
         <TouchableOpacity 
-          style={styles.lockbutton}
+          style={[styles.lockbutton, colorStyles]}
+          onPress={this.onPress}
         >
-          <Text style={{color: "white"}}>Lock</Text>
+          <Text style={{color: "white"}}>{buttonText}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -78,16 +98,15 @@ const styles = StyleSheet.create({
   map: {
     left: 15,
     right: 15,
-    top: 175,
+    top: 90,
     bottom: 145,
     position: 'absolute',
   },
   lockbutton: {
     alignItems: 'center',
     marginTop: 625,
-    backgroundColor: '#FF0000',
     paddingVertical: 25,
-    paddingHorizontal: 50,
     borderRadius: 10,
+    width: 180
   },
 });
