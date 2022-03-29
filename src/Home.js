@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import React, {Component} from 'react';
+import React from 'react';
 import MapView from 'react-native-maps';
 
 export class Home extends React.Component {
