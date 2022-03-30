@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text, Button } from 'react-native';
+import { View, StyleSheet, Button } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 export class Devices extends React.Component {

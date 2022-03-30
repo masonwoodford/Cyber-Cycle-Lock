@@ -1,4 +1,6 @@
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert, Button } from 'react-native';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
 import React from 'react';
 import MapView from 'react-native-maps';
 
@@ -13,7 +15,8 @@ export class Home extends React.Component {
         longitudeDelta: 0.0421,
       },
       buttonBackgroundColor: "red",
-      buttonText: "Lock"
+      buttonText: "Lock",
+      token: null,
     }
   }
 
@@ -30,6 +33,55 @@ export class Home extends React.Component {
     });
   }
 
+  componentDidMount() {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      }),
+    });
+    this.registerForPushNotificationsAsync();
+  }
+
+  registerForPushNotificationsAsync = async () => {
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        return;
+      }
+      const token = (await Notifications.getExpoPushTokenAsync()).data;
+      this.setState({ expoPushToken: token });
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+  
+    if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+  };
+
+  alarmNotify = async () =>{
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "ALERT",
+        body: 'Bike has been tampered with. Tap to locate.',
+        data: { data: 'goes here' },
+      },
+      trigger: { seconds: 1 },
+    }).catch(err => console.log(err));
+  }
+
   navigate = () => {
     this.props.navigation.navigate('Devices')
   }
@@ -37,6 +89,15 @@ export class Home extends React.Component {
   onRegionChange = (region) => {
     this.setState({ region });
   } 
+
+  createAlarm = () =>
+  Alert.alert(
+    "ALERT",
+    "Lock has been tampered with",
+    [
+      { text: "Locate" }
+    ]
+  );
 
   render() {
     const {region, buttonBackgroundColor, buttonText} = this.state
