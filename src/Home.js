@@ -134,6 +134,7 @@ export class Home extends React.Component {
           >
             <Text style={{color: "white"}}>Devices</Text>
           </TouchableOpacity>
+          <Button title="testButton" onPress={this.alarmNotify} color="red"/>
         </View>
       </View>
     );
