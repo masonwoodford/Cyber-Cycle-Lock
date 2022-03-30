@@ -10,15 +10,19 @@ export class Devices extends React.Component {
     scanDevices = () => {
 
     }
-    
+
+    navigateBack = () => {
+        this.props.navigation.navigate('Home')
+    }
+
     render() {
         return (
             <View style={styles.body}>
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}>Current Devices</Text>
+                <View style={styles.headerContainer}>
+                    <Button title="Back" onPress={this.navigateBack}></Button>
                 </View>
-                <View style={styles.sectionContainer}>
-                    <Button title="Scan devices" onPress={this.scanDevices} />
+                <View style={styles.mainContainer}>
+                    <Button title="Scan Devices" onPress={this.scanDevices} />
                 </View>
           </View>
         )
@@ -28,15 +32,17 @@ export class Devices extends React.Component {
 const styles = StyleSheet.create({
     body: {
         marginTop: 30,
-        backgroundColor: Colors.red
+        backgroundColor: Colors.red,
+        flex: 1,
     },
-    sectionContainer: {
+    headerContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         marginTop: 32,
         paddingHorizontal: 24,
     },
-    sectionTitle: {
-        fontSize: 24,
-        fontWeight: '600',
-        color: Colors.black,
-    },
+    mainContainer: {
+        bottom: 370,
+    }
 })

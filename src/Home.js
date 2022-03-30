@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   radius: {
     height: 50,
     width: 50,
-    borderRadius: 50/2,
+    borderRadius: 25,
     overflow: 'hidden',
     backgroundColor: 'rgba(0, 122, 255, 0.1)',
     borderWidth: 1,
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     width: 20,
     borderWidth: 3,
     borderColor: 'white',
-    borderRadius: 20/2,
+    borderRadius: 10,
     overflow: 'hidden',
     backgroundColor: '#007AFF'
   },
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     paddingVertical: 25,
     borderRadius: 10,
     width: 125,
-    height: 75,
+    height: 70,
     marginHorizontal: 20
   },
   locksbutton: {
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     paddingVertical: 25,
     borderRadius: 10,
     width: 125,
-    height: 75,
+    height: 70,
     backgroundColor: 'grey',
     marginHorizontal: 20
   },
