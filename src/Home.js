@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, Alert, Button } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert, Image } from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import React from 'react';
@@ -135,7 +135,7 @@ export class Home extends React.Component {
               <Callout>
                 <View>
                   <View style={styles.bubble}>
-                    <Text>Description</Text>
+                    <Image source={require('../assets/full-battery.png')} style={{width: 35, height: 35}}/>
                   </View>
                 </View>
               </Callout>
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     left: 15,
     right: 15,
     bottom: 145,
-    height: 600,
+    height: 595,
     position: 'absolute',
   },
   lockbutton: {
