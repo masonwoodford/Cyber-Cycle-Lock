@@ -9,8 +9,8 @@ export class Home extends React.Component {
     super(props)
     this.state = {
       region: {
-        latitude: 37.78825,
-        longitude: -122.4324,
+        latitude: 14.058324,
+        longitude: 108.277199,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       },
@@ -20,11 +20,18 @@ export class Home extends React.Component {
     }
   }
 
+  getDataFromServer = async () => {
+    //let response = await fetch(
+    //  'https://cyber-cycle-lock-server.herokuapp.com/'
+    //);
+    console.log("response");
+  };
+
   toggle = () => {
     this.setState({
       region: {
-        latitude: 37.78825,
-        longitude: -122.4324,
+        latitude: 14.058324,
+        longitude: 108.277199,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       },
@@ -42,6 +49,9 @@ export class Home extends React.Component {
       }),
     });
     this.registerForPushNotificationsAsync();
+    setInterval(() => {
+      this.getDataFromServer();
+    }, 3000);
   }
 
   registerForPushNotificationsAsync = async () => {
