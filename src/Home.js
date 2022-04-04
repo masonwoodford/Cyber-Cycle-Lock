@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Alert, Button } from 'react-n
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import React from 'react';
-import MapView from 'react-native-maps';
+import MapView, {Callout, Marker } from 'react-native-maps';
 
 export class Home extends React.Component {
   constructor(props) {
@@ -20,21 +20,28 @@ export class Home extends React.Component {
     }
   }
 
-  getDataFromServer = async () => {
-    //let response = await fetch(
-    //  'https://cyber-cycle-lock-server.herokuapp.com/'
-    //);
-    console.log("response");
+  getDataFromServer = () => {
+    fetch(
+      'https://cyber-cycle-lock-server.herokuapp.com/', {
+    })
+    .then(response => {
+      //console.log('Success: ', JSON.stringify(response));
+      //this.setState({
+      //  region: {
+      //    latitude: response.latitude,
+      //    longitude: response.longitude,
+      //    latitudeDelta: 0.0922,
+      //    longitudeDelta: 0.0421,
+       // }
+      //})
+    })
+    .catch ((error) => {
+      console.error('Error: ', error);
+    });
   };
 
   toggle = () => {
     this.setState({
-      region: {
-        latitude: 14.058324,
-        longitude: 108.277199,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      },
       buttonBackgroundColor: this.state.buttonBackgroundColor === "red" ? "green" : "red",
       buttonText: this.state.buttonText === "Unlock" ? "Lock" : "Unlock"
     });
@@ -96,10 +103,6 @@ export class Home extends React.Component {
     this.props.navigation.navigate('Devices')
   }
 
-  onRegionChange = (region) => {
-    this.setState({ region });
-  } 
-
   createAlarm = () =>
   Alert.alert(
     "ALERT",
@@ -119,19 +122,26 @@ export class Home extends React.Component {
         <MapView 
           style={styles.map} 
           region={region}
-          onRegionChange={this.onRegionChange}
         >
-          <MapView.Marker
+          <Marker
             coordinate={{        
               latitude: region.latitude,
               longitude: region.longitude
-            }}>
-              <View style={styles.radius}>
-                <View style={styles.marker} />
-              </View>
-          </MapView.Marker>
+            }}
+            onSelect={(e) => console.log("Marker selected")}
+            onPress={(e) => console.log("Marker selected")}
+            image={require('../assets/map_marker.png')}
+            >
+              <Callout>
+                <View>
+                  <View style={styles.bubble}>
+                    <Text>Description</Text>
+                  </View>
+                </View>
+              </Callout>
+          </Marker>
         </MapView>
-        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center'}}>
+        <View style={{flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center'}}>
           <TouchableOpacity 
             style={[styles.lockbutton, colorStyles]}
             onPress={this.toggle}
@@ -178,29 +188,37 @@ const styles = StyleSheet.create({
     backgroundColor: '#007AFF'
   },
   map: {
+    alignItems: 'center',
     left: 15,
     right: 15,
-    top: 90,
     bottom: 145,
+    height: 600,
     position: 'absolute',
   },
   lockbutton: {
     alignItems: 'center',
-    marginTop: 625,
     paddingVertical: 25,
     borderRadius: 10,
+    top: 325,
     width: 125,
     height: 70,
     marginHorizontal: 20
   },
   locksbutton: {
     alignItems: 'center',
-    marginTop: 625,
     paddingVertical: 25,
+    top: 325,
     borderRadius: 10,
     width: 125,
     height: 70,
     backgroundColor: 'grey',
     marginHorizontal: 20
+  },
+  bubble: {
+    flexDirection: 'row',
+    alignSelf: 'flex-start',
+    backgroundColor: '#fff',
+    borderRadius: 6,
+    borderColor: '#ccc',
   },
 });
