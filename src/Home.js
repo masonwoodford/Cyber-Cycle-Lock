@@ -4,9 +4,14 @@ import * as Notifications from 'expo-notifications';
 import React from 'react';
 import MapView, {Callout, Marker } from 'react-native-maps';
 
+const fullBattery = require('../assets/full-battery.png');
+const midBattery = require('../assets/mid-battery.png');
+const lowBattery = require('../assets/low-battery.png');
+
 export class Home extends React.Component {
   constructor(props) {
     super(props)
+    this.markers = [];
     this.state = {
       region: {
         latitude: 14.058324,
@@ -17,14 +22,25 @@ export class Home extends React.Component {
       buttonBackgroundColor: "red",
       buttonText: "Lock",
       token: null,
+      batteryLevel: "100%",
+      batteryImage: fullBattery,
     }
   }
 
   getDataFromServer = () => {
-    fetch(
-      'https://cyber-cycle-lock-server.herokuapp.com/', {
-    })
-    .then(response => {
+    fetch('https://cyber-cycle-lock-server.herokuapp.com/api/location')
+      .then(response => response.json())
+      .then(data => {
+        this.setState({
+          region: {
+            latitude: data.latitude,
+            longitude: data.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          },
+        })
+      })
+    };
       //console.log('Success: ', JSON.stringify(response));
       //this.setState({
       //  region: {
@@ -32,13 +48,24 @@ export class Home extends React.Component {
       //    longitude: response.longitude,
       //    latitudeDelta: 0.0922,
       //    longitudeDelta: 0.0421,
-       // }
+      //  batteryLevel: response.batteryLevel,
+      // }
       //})
-    })
-    .catch ((error) => {
-      console.error('Error: ', error);
-    });
-  };
+      /*
+      if (batteryLevel < 33) {
+        this.setState({
+          batteryImage: lowBattery,
+        })
+      } else if (batteryLevel < 66) {
+        this.setState({
+          batteryImage: midBattery,
+        })
+      } else {
+        this.setState({
+          batteryImage: lowBattery,
+        })
+      }
+      */
 
   toggle = () => {
     this.setState({
@@ -58,7 +85,7 @@ export class Home extends React.Component {
     this.registerForPushNotificationsAsync();
     setInterval(() => {
       this.getDataFromServer();
-    }, 3000);
+    }, 6000);
   }
 
   registerForPushNotificationsAsync = async () => {
@@ -113,7 +140,7 @@ export class Home extends React.Component {
   );
 
   render() {
-    const {region, buttonBackgroundColor, buttonText} = this.state
+    const {region, buttonBackgroundColor, buttonText, token, batteryLevel, batteryImage} = this.state
     const colorStyles = {
       backgroundColor: buttonBackgroundColor
     }
@@ -128,14 +155,16 @@ export class Home extends React.Component {
               latitude: region.latitude,
               longitude: region.longitude
             }}
-            onSelect={(e) => console.log("Marker selected")}
-            onPress={(e) => console.log("Marker selected")}
+            ref={ref => {
+              this.markers[0] = ref;
+            }}
             image={require('../assets/map_marker.png')}
             >
-              <Callout>
+              <Callout onPress={() => this.markers[0].hideCallout()}>
                 <View>
                   <View style={styles.bubble}>
-                    <Image source={require('../assets/full-battery.png')} style={{width: 35, height: 35}}/>
+                    <Text style={{marginRight: 5}}>{batteryLevel}</Text>
+                    <Image source={batteryImage} style={{width: 35, height: 35}}/>
                   </View>
                 </View>
               </Callout>
@@ -166,26 +195,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  radius: {
-    height: 50,
-    width: 50,
-    borderRadius: 25,
-    overflow: 'hidden',
-    backgroundColor: 'rgba(0, 122, 255, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(0, 122, 255, 0.3)',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  marker: {
-    height: 20,
-    width: 20,
-    borderWidth: 3,
-    borderColor: 'white',
-    borderRadius: 10,
-    overflow: 'hidden',
-    backgroundColor: '#007AFF'
   },
   map: {
     alignItems: 'center',
@@ -220,5 +229,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 6,
     borderColor: '#ccc',
+    alignItems: 'center',
   },
 });
