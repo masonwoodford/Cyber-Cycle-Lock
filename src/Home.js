@@ -7,6 +7,7 @@ import MapView, {Callout, Marker } from 'react-native-maps';
 const fullBattery = require('../assets/full-battery.png');
 const midBattery = require('../assets/mid-battery.png');
 const lowBattery = require('../assets/low-battery.png');
+const axios = require('axios');
 
 export class Home extends React.Component {
   constructor(props) {
@@ -25,6 +26,8 @@ export class Home extends React.Component {
       batteryLevel: "100%",
       batteryImage: fullBattery,
     }
+    this.unlockRaw = "{\n    \"locked-status\": false\n}"
+    this.lockRaw = "{\n    \"locked-status\": true\n}"
   }
 
   getDataFromServer = () => {
@@ -40,6 +43,7 @@ export class Home extends React.Component {
           },
         })
       })
+      .catch(error => console.log('Error: ', error))
     };
       //console.log('Success: ', JSON.stringify(response));
       //this.setState({
@@ -72,9 +76,36 @@ export class Home extends React.Component {
       buttonBackgroundColor: this.state.buttonBackgroundColor === "red" ? "green" : "red",
       buttonText: this.state.buttonText === "Unlock" ? "Lock" : "Unlock"
     });
+    const data = {'locked-status': this.state.buttonText === "Unlock" ? false : true};
+    const config = {
+      method: 'post',
+      url: 'https://cyber-cycle-lock-server.herokuapp.com/api/locked-status',
+      headers: {},
+      data: data,
+    };
+    axios(config)
+    .then(function (response) {
+      console.log(JSON.stringify(response.data));
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+
+  fetchLockStatus = async () => {
+    fetch('https://cyber-cycle-lock-server.herokuapp.com/api/locked-status')
+    .then(response => response.json())
+    .then(data => {
+      this.setState({
+        buttonBackgroundColor: data["locked-status"] === "true" ? "green" : "red",
+        buttonText: data["locked-status"] === "true" ? "Unlock" : "Lock"
+      });
+      this.forceUpdate();
+    })
   }
 
   componentDidMount() {
+    this.fetchLockStatus();
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
