@@ -20,14 +20,13 @@ export class Home extends React.Component {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       },
-      buttonBackgroundColor: "red",
-      buttonText: "Lock",
       token: null,
       batteryLevel: "100%",
       batteryImage: fullBattery,
+      buttonBackgroundColor: this.props.route.params.lockedStatus ? "green" : "red",
+      buttonText: this.props.route.params.lockedStatus ? "Unlock" : "Lock"
     }
-    this.unlockRaw = "{\n    \"locked-status\": false\n}"
-    this.lockRaw = "{\n    \"locked-status\": true\n}"
+    this.dataInterval = null;
   }
 
   getDataFromServer = () => {
@@ -92,20 +91,7 @@ export class Home extends React.Component {
     });
   }
 
-  fetchLockStatus = async () => {
-    fetch('https://cyber-cycle-lock-server.herokuapp.com/api/locked-status')
-    .then(response => response.json())
-    .then(data => {
-      this.setState({
-        buttonBackgroundColor: data["locked-status"] === "true" ? "green" : "red",
-        buttonText: data["locked-status"] === "true" ? "Unlock" : "Lock"
-      });
-      this.forceUpdate();
-    })
-  }
-
   componentDidMount() {
-    this.fetchLockStatus();
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
@@ -114,9 +100,13 @@ export class Home extends React.Component {
       }),
     });
     this.registerForPushNotificationsAsync();
-    setInterval(() => {
+    this.dataInterval = setInterval(() => {
       this.getDataFromServer();
     }, 6000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.dataInterval);
   }
 
   registerForPushNotificationsAsync = async () => {

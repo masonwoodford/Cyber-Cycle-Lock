@@ -5,6 +5,36 @@ import LottieView from 'lottie-react-native';
 export class Splash extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            hasRetrievedLockValue: false,
+            lockedStatus: null
+        };
+        this.fetchInterval = null;
+    }
+
+    componentDidMount() {
+        this.fetchLockStatus();
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.fetchInterval);
+    }   
+
+    fetchLockStatus = async () => {
+        fetch('https://cyber-cycle-lock-server.herokuapp.com/api/locked-status')
+        .then(response => response.json())
+        .then(data => {
+            this.setState({
+                hasRetrievedLockValue: true,
+                lockedStatus: data["locked-status"]
+            });
+        })
+      }
+    
+    navigateHome = () => {
+        if (this.state.hasRetrievedLockValue) {
+            this.props.navigation.navigate('Home', {lockedStatus: this.state.lockedStatus});
+        }
     }
 
     render() {
@@ -27,7 +57,7 @@ export class Splash extends React.Component {
                     speed = {0.9}
                     source={require('../assets/splash.json')}
                     onAnimationFinish = {() => {
-                        setTimeout(() => this.props.navigation.navigate('Home'))
+                        this.fetchInterval = setInterval(this.navigateHome, 1000);
                     }}
                 />
             </View>
