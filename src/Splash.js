@@ -35,6 +35,7 @@ export class Splash extends React.Component {
         if (this.state.hasRetrievedLockValue) {
             this.props.navigation.navigate('Home', {lockedStatus: this.state.lockedStatus});
         }
+        clearInterval(this.fetchInterval);
     }
 
     render() {
