@@ -1,25 +1,28 @@
-import { StyleSheet } from 'react-native';
-import { Home } from './src/Home';
-import { Splash } from './src/Splash'
-import { Devices } from './src/Devices'
+import {StyleSheet} from 'react-native';
+import {Home} from './src/Home';
+import {Splash} from './src/Splash';
+import {Devices} from './src/Devices';
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 export default class App extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
   }
 
   render() {
     return (
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Splash" screenOptions={{headerShown: false}}>
-          <Stack.Screen name="Splash" component={Splash} />
-          <Stack.Screen name="Home" component={Home} />
-          <Stack.Screen name="Devices" component={Devices} />
+        <Stack.Navigator
+          initialRouteName='Splash'
+          screenOptions={{headerShown: false}}
+        >
+          <Stack.Screen name='Splash' component={Splash} />
+          <Stack.Screen name='Home' component={Home} />
+          <Stack.Screen name='Devices' component={Devices} />
         </Stack.Navigator>
-    </NavigationContainer>
+      </NavigationContainer>
     );
   }
 }

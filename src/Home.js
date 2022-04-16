@@ -1,17 +1,30 @@
-import { StyleSheet, Text, View, TouchableOpacity, Alert, Image } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Alert,
+  Image,
+} from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import React from 'react';
-import MapView, {Callout, Marker } from 'react-native-maps';
+import MapView, {Callout, Marker} from 'react-native-maps';
 
 const fullBattery = require('../assets/full-battery.png');
 const midBattery = require('../assets/mid-battery.png');
 const lowBattery = require('../assets/low-battery.png');
 const axios = require('axios');
 
+const server_address = 'https://cyber-cycle-lock-server.herokuapp.com/api/';
+// const server_address = 'http://localhost:8080/api/';
+
+let shouldUpdateLockState = true;
+let waitForLockStateToBe = '';
+
 export class Home extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.markers = [];
     this.state = {
       region: {
@@ -21,40 +34,82 @@ export class Home extends React.Component {
         longitudeDelta: 0.0421,
       },
       token: null,
-      batteryLevel: "100%",
+      batteryLevel: '100%',
       batteryImage: fullBattery,
-      buttonBackgroundColor: this.props.route.params.lockedStatus ? "green" : "red",
-      buttonText: this.props.route.params.lockedStatus ? "Unlock" : "Lock"
-    }
+      buttonBackgroundColor: 'grey',
+      buttonText: this.props.route.params.lockedStatus ? 'Unlock' : 'Lock',
+      lockState: null,
+    };
     this.dataInterval = null;
   }
 
   getDataFromServer = () => {
-    fetch('https://cyber-cycle-lock-server.herokuapp.com/api/location')
-      .then(response => response.json())
-      .then(data => {
+    fetch(`${server_address}location/`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('location: ', data.latitude, data.longitude);
         this.setState({
           region: {
             latitude: data.latitude,
             longitude: data.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
+            latitudeDelta: 0.002,
+            longitudeDelta: 0.002,
+            // latitudeDelta: 0.0922,
+            // longitudeDelta: 0.0421,
           },
-        })
+        });
       })
-      .catch(error => console.log('Error: ', error))
-    };
-      //console.log('Success: ', JSON.stringify(response));
-      //this.setState({
-      //  region: {
-      //    latitude: response.latitude,
-      //    longitude: response.longitude,
-      //    latitudeDelta: 0.0922,
-      //    longitudeDelta: 0.0421,
-      //  batteryLevel: response.batteryLevel,
-      // }
-      //})
-      /*
+      .catch((error) => console.log('Error 1: ', error));
+
+    axios
+      .get(`${server_address}lock-status/`)
+      .then((response) => {
+        return response.data;
+      })
+      .then((data) => {
+        // TODO
+        // if (shouldUpdateLockState == false) {
+        //   if (data['lock-status'] == waitForLockStateToBe) {
+        //     shouldUpdateLockState = true;
+        //   } else {
+        //     return;
+        //   }
+        // }
+
+        if (data['lock-status'] == 'locked') {
+          this.setState({
+            buttonBackgroundColor: 'red',
+          });
+        }
+        if (data['lock-status'] == 'unlocked') {
+          this.setState({
+            buttonBackgroundColor: 'green',
+          });
+        }
+
+        this.setState(
+          {
+            lockState: data['lock-status'],
+          },
+          () => {
+            console.log('lock status set to: ', data['lock-status']);
+          }
+        );
+      })
+      .catch((error) => console.log('error 2:', error));
+  };
+
+  //console.log('Success: ', JSON.stringify(response));
+  //this.setState({
+  //  region: {
+  //    latitude: response.latitude,
+  //    longitude: response.longitude,
+  //    latitudeDelta: 0.0922,
+  //    longitudeDelta: 0.0421,
+  //  batteryLevel: response.batteryLevel,
+  // }
+  //})
+  /*
       if (batteryLevel < 33) {
         this.setState({
           batteryImage: lowBattery,
@@ -71,25 +126,48 @@ export class Home extends React.Component {
       */
 
   toggle = () => {
-    this.setState({
-      buttonBackgroundColor: this.state.buttonBackgroundColor === "red" ? "green" : "red",
-      buttonText: this.state.buttonText === "Unlock" ? "Lock" : "Unlock"
-    });
-    const data = {'locked-status': this.state.buttonText === "Unlock" ? false : true};
+    console.log('recent queried lockState: ', this.state.lockState);
+
+    let data;
+    if (this.state.lockState == 'request-lock') {
+      return;
+    } else if (this.state.lockState == 'request-unlock') {
+      return;
+    } else if (this.state.lockState == 'unlocked') {
+      this.setState({
+        buttonBackgroundColor: 'grey',
+        lockState: 'request-lock',
+      });
+      data = {'lock-status': 'request-lock'};
+      waitForLockStateToBe = 'locked';
+    } else if (this.state.lockState == 'locked') {
+      this.setState({
+        buttonBackgroundColor: 'grey',
+        lockState: 'request-unlock',
+      });
+      data = {'lock-status': 'request-unlock'};
+      waitForLockStateToBe = 'unlocked';
+    } else {
+      return;
+    }
+
+    shouldUpdateLockState = false;
+
     const config = {
       method: 'post',
-      url: 'https://cyber-cycle-lock-server.herokuapp.com/api/locked-status',
+      url: `${server_address}lock-status/`,
       headers: {},
       data: data,
     };
+
     axios(config)
-    .then(function (response) {
-      console.log(JSON.stringify(response.data));
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-  }
+      .then(function (response) {
+        console.log(JSON.stringify(response.data));
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
 
   componentDidMount() {
     Notifications.setNotificationHandler({
@@ -102,7 +180,7 @@ export class Home extends React.Component {
     this.registerForPushNotificationsAsync();
     this.dataInterval = setInterval(() => {
       this.getDataFromServer();
-    }, 6000);
+    }, 2000);
   }
 
   componentWillUnmount() {
@@ -111,21 +189,22 @@ export class Home extends React.Component {
 
   registerForPushNotificationsAsync = async () => {
     if (Device.isDevice) {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      const {status: existingStatus} =
+        await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
       if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
+        const {status} = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
       if (finalStatus !== 'granted') {
         return;
       }
       const token = (await Notifications.getExpoPushTokenAsync()).data;
-      this.setState({ expoPushToken: token });
+      this.setState({expoPushToken: token});
     } else {
       alert('Must use physical device for Push Notifications');
     }
-  
+
     if (Platform.OS === 'android') {
       Notifications.setNotificationChannelAsync('default', {
         name: 'default',
@@ -136,73 +215,85 @@ export class Home extends React.Component {
     }
   };
 
-  alarmNotify = async () =>{
+  alarmNotify = async () => {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "ALERT",
+        title: 'ALERT',
         body: 'Bike has been tampered with. Tap to locate.',
-        data: { data: 'goes here' },
+        data: {data: 'goes here'},
       },
-      trigger: { seconds: 1 },
-    }).catch(err => console.log(err));
-  }
+      trigger: {seconds: 1},
+    }).catch((err) => console.log(err));
+  };
 
   navigate = () => {
-    this.props.navigation.navigate('Devices')
-  }
+    this.props.navigation.navigate('Devices');
+  };
 
   createAlarm = () =>
-  Alert.alert(
-    "ALERT",
-    "Lock has been tampered with",
-    [
-      { text: "Locate" }
-    ]
-  );
+    Alert.alert('ALERT', 'Lock has been tampered with', [{text: 'Locate'}]);
 
   render() {
-    const {region, buttonBackgroundColor, buttonText, token, batteryLevel, batteryImage} = this.state
-    const colorStyles = {
-      backgroundColor: buttonBackgroundColor
+    const {region, buttonBackgroundColor, token, batteryLevel, batteryImage} =
+      this.state;
+
+    let buttonText;
+    if (this.state.lockState == 'request-lock') {
+      buttonText = 'Locking...';
+    } else if (this.state.lockState == 'request-unlock') {
+      buttonText = 'Unlocking...';
+    } else if (this.state.lockState == 'unlocked') {
+      buttonText = 'Lock';
+    } else if (this.state.lockState == 'locked') {
+      buttonText = 'Unlock';
+    } else {
+      buttonText = 'Getting status...';
     }
+
+    const colorStyles = {
+      backgroundColor: buttonBackgroundColor,
+    };
     return (
       <View style={styles.container}>
-        <MapView 
-          style={styles.map} 
-          region={region}
-        >
+        <MapView style={styles.map} region={region}>
           <Marker
-            coordinate={{        
+            coordinate={{
               latitude: region.latitude,
-              longitude: region.longitude
+              longitude: region.longitude,
             }}
-            ref={ref => {
+            ref={(ref) => {
               this.markers[0] = ref;
             }}
             image={require('../assets/map_marker.png')}
-            >
-              <Callout onPress={() => this.markers[0].hideCallout()}>
-                <View>
-                  <View style={styles.bubble}>
-                    <Text style={{marginRight: 5}}>{batteryLevel}</Text>
-                    <Image source={batteryImage} style={{width: 35, height: 35}}/>
-                  </View>
+          >
+            <Callout onPress={() => this.markers[0].hideCallout()}>
+              <View>
+                <View style={styles.bubble}>
+                  <Text style={{marginRight: 5}}>{batteryLevel}</Text>
+                  <Image
+                    source={batteryImage}
+                    style={{width: 35, height: 35}}
+                  />
                 </View>
-              </Callout>
+              </View>
+            </Callout>
           </Marker>
         </MapView>
-        <View style={{flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center'}}>
-          <TouchableOpacity 
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            alignItems: 'center',
+          }}
+        >
+          <TouchableOpacity
             style={[styles.lockbutton, colorStyles]}
             onPress={this.toggle}
           >
-            <Text style={{color: "white"}}>{buttonText}</Text>
+            <Text style={{color: 'white'}}>{buttonText}</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.locksbutton}
-            onPress={this.navigate}
-          >
-            <Text style={{color: "white"}}>Devices</Text>
+          <TouchableOpacity style={styles.locksbutton} onPress={this.navigate}>
+            <Text style={{color: 'white'}}>Devices</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -232,7 +323,7 @@ const styles = StyleSheet.create({
     top: 325,
     width: 125,
     height: 70,
-    marginHorizontal: 20
+    marginHorizontal: 20,
   },
   locksbutton: {
     alignItems: 'center',
@@ -242,7 +333,7 @@ const styles = StyleSheet.create({
     width: 125,
     height: 70,
     backgroundColor: 'grey',
-    marginHorizontal: 20
+    marginHorizontal: 20,
   },
   bubble: {
     flexDirection: 'row',
