@@ -62,6 +62,19 @@ export class Home extends React.Component {
       .catch((error) => console.log('Error 1: ', error));
 
     axios
+      .get(`${server_address}alarm/`)
+      .then((response) => {
+        return response.data;
+      })
+      .then((data) => {
+        if (data['alarm'] == 'true') {
+          console.log('ALARM TRIGGERED');
+          this.alarmNotify();
+        }
+      })
+      .catch((error) => console.log('error 2:', error));
+
+    axios
       .get(`${server_address}lock-status/`)
       .then((response) => {
         return response.data;
