@@ -68,8 +68,8 @@ export class Home extends React.Component {
       })
       .then((data) => {
         if (data['alarm'] == 'true') {
-          console.log('ALARM TRIGGERED');
-          this.alarmNotify();
+          //console.log('ALARM TRIGGERED');
+          //this.alarmNotify();
         }
       })
       .catch((error) => console.log('error 2:', error));
