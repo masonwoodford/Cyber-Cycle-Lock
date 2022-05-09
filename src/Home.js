@@ -21,6 +21,7 @@ const server_address = 'https://cyber-cycle-lock-server.herokuapp.com/api/';
 
 let shouldUpdateLockState = true;
 let waitForLockStateToBe = '';
+let sendOnce = true;
 
 export class Home extends React.Component {
   constructor(props) {
@@ -69,7 +70,12 @@ export class Home extends React.Component {
       .then((data) => {
         if (data['alarm'] == 'true') {
           //console.log('ALARM TRIGGERED');
-          //this.alarmNotify();
+          if (sendOnce) {
+            this.alarmNotify();
+            sendOnce = false;
+          }
+        } else if (data['alarm'] == 'false') {
+          sendOnce = true;
         }
       })
       .catch((error) => console.log('error 2:', error));

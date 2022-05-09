@@ -5,6 +5,6 @@
   "minify": false,
   "urlRandomness": null,
   "https": false,
-  "scheme": "com.masonwoodford.cybercyclelock",
-  "devClient": true
+  "scheme": null,
+  "devClient": false
 }
