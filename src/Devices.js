@@ -9,16 +9,22 @@ export class Devices extends React.Component {
     }
 
     componentDidMount() {
+        this.setState({
+            isScanning: false
+        })
         NativeAppEventEmitter.addListener('BleManagerDiscoverPeripheral', (data) => 
         {
             console.log(data) // Name of peripheral device
         });
-        //BleManager.start({showAlert: false})
-        //BleManager.scan([], 30)
     }
 
     scanDevices = () => {
-
+        if (!this.state.isScanning) {
+            BleManager.start({showAlert: false});
+            BleManager.scan([], 30);
+            this.setState({isScanning: true});
+            console.log("Started BLE scan")
+        }
     }
 
     navigateBack = () => {
